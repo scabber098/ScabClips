@@ -1,0 +1,49 @@
+ame: Multi Job CI Pipeline
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Build Step
+        run: |
+          echo "Building application..."
+          echo "Build completed" > build.txt
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-file
+          path: build.txt
+
+  test:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download Build Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: build-file
+
+      - name: Test Build
+        run: |
+          echo "Testing application..."
+          cat build.txt
+          grep "Build completed" build.txt
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy Application
+        run: |
+          echo "Deployment started..."
+          echo "Application deployed successfully"
